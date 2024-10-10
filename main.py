@@ -1,11 +1,12 @@
 from dotenv import dotenv_values
 from langchain_ollama import ChatOllama
 from langchain_core.messages import HumanMessage, SystemMessage
+from langchain_core.output_parsers import StrOutputParser
 
 config = dotenv_values()
 
 model = ChatOllama(
-    model="llama3.2:3b-instruct-fp16", 
+    model="llama3.1",
     temperature=0,
 )
 
@@ -14,5 +15,8 @@ messages = [
     HumanMessage(content="hi!"),
 ]
 
+parser = StrOutputParser()
+
 if __name__ == "__main__":
-    print(model.invoke(messages))
+    chain = model | parser
+    print(chain.invoke(messages))
