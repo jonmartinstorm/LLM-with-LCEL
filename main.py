@@ -1,7 +1,7 @@
 from dotenv import dotenv_values
 from langchain_ollama import ChatOllama
-from langchain_core.messages import HumanMessage, SystemMessage
 from langchain_core.output_parsers import StrOutputParser
+from langchain_core.prompts import ChatPromptTemplate
 
 config = dotenv_values()
 
@@ -10,13 +10,13 @@ model = ChatOllama(
     temperature=0,
 )
 
-messages = [
-    SystemMessage(content="Translate the following from English into Italian"),
-    HumanMessage(content="hi!"),
-]
+system_template = "Translate the following into {language}."
+prompt_template = ChatPromptTemplate.from_messages(
+    [("system", system_template), ("user", "{text}")]
+)
 
 parser = StrOutputParser()
 
 if __name__ == "__main__":
-    chain = model | parser
-    print(chain.invoke(messages))
+    chain = prompt_template | model | parser
+    print(chain.invoke({"language": "norwegian", "text": "Hi, how are you?"}))
