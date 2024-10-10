@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+from fastapi import FastAPI
+from langserve import add_routes
 from dotenv import dotenv_values
 from langchain_ollama import ChatOllama
 from langchain_core.output_parsers import StrOutputParser
@@ -17,6 +20,21 @@ prompt_template = ChatPromptTemplate.from_messages(
 
 parser = StrOutputParser()
 
+chain = prompt_template | model | parser
+
+app = FastAPI(
+    title="Simple LLM translator",
+    version="1.0",
+    description="A simple API server using LangChain's Runnable interfaces",
+)
+
+add_routes(
+    app,
+    chain,
+    path="/chain",
+)
+
 if __name__ == "__main__":
-    chain = prompt_template | model | parser
-    print(chain.invoke({"language": "norwegian", "text": "Hi, how are you?"}))
+    import uvicorn
+
+    uvicorn.run(app, host="localhost", port=8000)
